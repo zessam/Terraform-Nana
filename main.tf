@@ -75,24 +75,20 @@ resource "aws_security_group" "myapp-sg" {
    }
 }
 
-data "aws_ami" "latest-amazon-linux-image" {
-  most_recent = true
-  owners = ["amazon"]
-  filter {
-    name = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
 
-  filter {
-    name = "virtualization-type"
-    values = ["hvm"]
+
+
+
+
+resource "aws_key_pair" "myapp-key" {
+  key_name = "myapp-key"
+  public_key = "${file(var.public_key_location)}"
+
+  tags = {
+    Name = "${var.env_prefix}-key"
   }
 }
 
-
-output "aws_ami_id" {
-  value = data.aws_ami.latest-amazon-linux-image.id
-}
 
 
 resource "aws_instance" "myapp-server" {
@@ -104,7 +100,7 @@ resource "aws_instance" "myapp-server" {
   availability_zone = var.avail_zone
   associate_public_ip_address = true
 
-  #key_name = "myapp-key"
+  key_name = "myapp-key"
 
   tags = {
     Name = "${var.env_prefix}-server"
